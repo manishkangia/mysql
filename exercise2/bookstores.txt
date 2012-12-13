@@ -1,0 +1,115 @@
+mysql> desc branch;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| bcode     | varchar(5)  | NO   | PRI |         |       |
+| librarian | varchar(15) | YES  |     | NULL    |       |
+| address   | varchar(20) | YES  |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> select * from branch;
++-------+---------------+---------------+
+| bcode | librarian     | address       |
++-------+---------------+---------------+
+| B1    | John Smith    | 2 Anglesea Rd |
+| B2    | Mary Jones    | 34 Pearse St  |
+| B3    | Francis Owens | Grange X      |
++-------+---------------+---------------+
+3 rows in set (0.00 sec)
+
+mysql> desc titles;
++-----------+-------------+------+-----+---------+-------+
+| Field     | Type        | Null | Key | Default | Extra |
++-----------+-------------+------+-----+---------+-------+
+| title     | varchar(15) | NO   | PRI |         |       |
+| author    | varchar(15) | YES  |     | NULL    |       |
+| publisher | varchar(15) | YES  |     | NULL    |       |
++-----------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> select * from titles;
++-----------------+---------------+------------+
+| title           | author        | publisher  |
++-----------------+---------------+------------+
+| A History of Du | David Little  | Wiley      |
+| Computers       | Blaise Pascal | Applewoods |
+| How To Fish     | Amy Fly       | Stop Press |
+| Susannah        | Ann Brown     | Macmillan  |
+| The Wife        | Ann Brown     | Macmillan  |
++-----------------+---------------+------------+
+5 rows in set (0.00 sec)
+
+mysql> desc holdings;
++--------+-------------+------+-----+---------+-------+
+| Field  | Type        | Null | Key | Default | Extra |
++--------+-------------+------+-----+---------+-------+
+| branch | varchar(15) | NO   | PRI |         |       |
+| title  | varchar(15) | NO   | PRI |         |       |
+| copies | int(11)     | YES  |     | NULL    |       |
++--------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> select * from holdings;
++--------+-----------+--------+
+| branch | title     | copies |
++--------+-----------+--------+
+| B1     | A Hist    |      1 |
+| B1     | How To    |      2 |
+| B1     | Susannah  |      3 |
+| B2     | Computers |      2 |
+| B2     | How TO    |      4 |
+| B2     | The Wife  |      3 |
+| B3     | A Hist .. |      1 |
+| B3     | Computers |      4 |
+| B3     | Susannah  |      3 |
+| B3     | The Wife  |      1 |
++--------+-----------+--------+
+10 rows in set (0.00 sec)
+
+(i)the names of all library books published by Macmillan. 
+
+mysql> select * from titles where publisher <=> 'Macmillan';
++----------+-----------+-----------+
+| title    | author    | publisher |
++----------+-----------+-----------+
+| Susannah | Ann Brown | Macmillan |
+| The Wife | Ann Brown | Macmillan |
++----------+-----------+-----------+
+2 rows in set (0.00 sec)
+
+(ii)branches that hold any books by Ann Brown (using a nested subquery).
+
+mysql> select branch.* from branch where bcode in (select distinct branch from holdings where title in (select title from titles where author <=> "Ann Brown"));
++-------+---------------+---------------+
+| bcode | librarian     | address       |
++-------+---------------+---------------+
+| B1    | John Smith    | 2 Anglesea Rd |
+| B2    | Mary Jones    | 34 Pearse St  |
+| B3    | Francis Owens | Grange X      |
++-------+---------------+---------------+
+3 rows in set (0.00 sec)
+
+(iii)branches that hold any books by Ann Brown (without using a nested subquery).
+
+mysql> select distinct branch.* from branch,holdings,titles where titles.author="Ann Brown" && titles.title <=> holdings.title && holdings.branch<=>branch.bcode group by bcode;
++-------+---------------+---------------+
+| bcode | librarian     | address       |
++-------+---------------+---------------+
+| B1    | John Smith    | 2 Anglesea Rd |
+| B2    | Mary Jones    | 34 Pearse St  |
+| B3    | Francis Owens | Grange X      |
++-------+---------------+---------------+
+3 rows in set (0.00 sec)
+
+(iv)the total number of books held at each branch.
+
+mysql> select branch,sum(copies) as 'Total Copies' from holdings group by branch;
++--------+--------------+
+| branch | Total Copies |
++--------+--------------+
+| B1     |            6 |
+| B2     |            9 |
+| B3     |            9 |
++--------+--------------+
+3 rows in set (0.00 sec)
