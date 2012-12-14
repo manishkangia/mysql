@@ -1,0 +1,3 @@
+mysqldump -u root -p manage_articles > backup_manage_articles.sql
+
+mysql -u root -p stevejobs < backup_manage_articles.sql
