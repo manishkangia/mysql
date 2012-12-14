@@ -1,0 +1,129 @@
+users > id ,type,  name , pk(id)
+articles > article.index,user_id,category , pk(aticle.index, category )-- a single category for each article,user_id to check who accesses that particular article--
+comments > article.index, comment
+
+mysql> desc users;
++-------+------------------------+------+-----+---------+-------+
+| Field | Type                   | Null | Key | Default | Extra |
++-------+------------------------+------+-----+---------+-------+
+| id    | int(11)                | NO   | PRI | NULL    |       |
+| type  | enum('admin','normal') | NO   |     | normal  |       |
+| name  | varchar(15)            | NO   |     | NULL    |       |
++-------+------------------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> select * from users;
++----+--------+-----------+
+| id | type   | name      |
++----+--------+-----------+
+|  1 | admin  | stevejobs |
+|  2 | admin  | manish    |
+|  3 | normal | aakash    |
+|  4 | normal | prithvi   |
+|  5 |        | prith     |
++----+--------+-----------+
+5 rows in set (0.00 sec)
+
+mysql> desc articles;
++---------------+-------------+------+-----+---------+-------+
+| Field         | Type        | Null | Key | Default | Extra |
++---------------+-------------+------+-----+---------+-------+
+| article_index | int(11)     | NO   | PRI | NULL    |       |
+| user_id       | int(11)     | NO   | PRI | NULL    |       |
+| category      | varchar(15) | NO   |     | NULL    |       |
++---------------+-------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> select * from articles;
++---------------+---------+-------------+
+| article_index | user_id | category    |
++---------------+---------+-------------+
+|             1 |       1 | computers   |
+|             1 |       3 | computers   |
+|             2 |       1 | sopping     |
+|             3 |       2 | computers   |
+|             4 |       3 | computers   |
+|             5 |       4 | computers   |
+|             6 |       1 | no comments |
+|             7 |       3 | computers   |
++---------------+---------+-------------+
+8 rows in set (0.00 sec)
+
+mysql> desc comments;
++---------------+---------+------+-----+---------+-------+
+| Field         | Type    | Null | Key | Default | Extra |
++---------------+---------+------+-----+---------+-------+
+| article_index | int(11) | NO   |     | NULL    |       |
+| comment       | text    | NO   |     | NULL    |       |
+| user_id       | int(11) | NO   |     | NULL    |       |
++---------------+---------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> select * from comments;
++---------------+-----------------------+---------+
+| article_index | comment               | user_id |
++---------------+-----------------------+---------+
+|             2 | first comment         |       1 |
+|             2 | first comment         |       1 |
+|             2 | another first comment |       1 |
+|             2 | comment               |       2 |
+|             3 | first comment         |       1 |
+|             4 | first comment         |       1 |
+|             1 | first comment         |       3 |
+|             1 | first comment         |       3 |
+|             4 | first comment         |       3 |
++---------------+-----------------------+---------+
+9 rows in set (0.00 sec)
+
+mysql> select * from articles where user_id = 3;
+mysql> select * from articles where user_id = 3;
++---------------+---------+-----------+
+| article_index | user_id | category  |
++---------------+---------+-----------+
+|             1 |       3 | computers |
+|             4 |       3 | computers |
+|             7 |       3 | computers |
++---------------+---------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> select * from comments where article_index in (select article_index from articles where user_id = 3) && user_id=3;
++---------------+---------------+---------+
+| article_index | comment       | user_id |
++---------------+---------------+---------+
+|             1 | first comment |       3 |
+|             1 | first comment |       3 |
+|             4 | first comment |       3 |
++---------------+---------------+---------+
+3 rows in set (0.00 sec)
+
+mysql> select distinct article_index,category from articles left join comments using (article_index) where comment is null;
++---------------+-------------+
+| article_index | category    |
++---------------+-------------+
+|             5 | computers   |
+|             6 | no comments |
+|             7 | computers   |
++---------------+-------------+
+3 rows in set (0.00 sec)
+
+mysql> select articles.*,count(comment) as count from articles,comments where articles.article_index = comments.article_index group by article_index order by count desc limit 1;
++---------------+---------+----------+-------+
+| article_index | user_id | category | count |
++---------------+---------+----------+-------+
+|             2 |       1 | sopping  |     4 |
++---------------+---------+----------+-------+
+1 row in set (0.00 sec)
+
+mysql> select article_index,category from (select article_index,category,user_id,count(comment) as number from articles left join comments using (article_index,user_id) group by article_index,user_id) as temp_table where number < 2;
++---------------+-------------+
+| article_index | category    |
++---------------+-------------+
+|             1 | computers   |
+|             3 | computers   |
+|             4 | computers   |
+|             5 | computers   |
+|             6 | no comments |
+|             7 | computers   |
++---------------+-------------+
+6 rows in set (0.00 sec)
+
