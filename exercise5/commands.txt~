@@ -1,5 +1,5 @@
 mysqldump -u root -p manage_articles > backup_manage_articles.sql
 
---create database restored -- 
+--create database restored-- 
 
 mysql -u root -p restored < backup_manage_articles.sql
