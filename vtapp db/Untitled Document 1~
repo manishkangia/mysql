@@ -8,7 +8,7 @@ admin : add track / add user / assign track owners
 tracks : name / 
 
 ------
-users : id, name, admin(boolean), isrunner(bool), isreviewer(bool)
+users : id, name,email, admin(boolean), isrunner(bool), isreviewer(bool)
 tracks : track_id, name, track_owner_id
 tasks : task_id, track_id, name, description
 tasks_runners : user_id, task_id, started/finished, reviewer, rejected/accepted
@@ -22,17 +22,35 @@ mysql> create table users (
     -> reviewer boolean not null default '0');
 Query OK, 0 rows affected (0.37 sec)
 
+mysql> alter table users add email varchar(20) not null after name;
+Query OK, 6 rows affected (0.38 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
 mysql> desc users;
 +----------+-------------+------+-----+---------+----------------+
 | Field    | Type        | Null | Key | Default | Extra          |
 +----------+-------------+------+-----+---------+----------------+
 | id       | int(11)     | NO   | PRI | NULL    | auto_increment |
 | name     | varchar(20) | NO   |     | NULL    |                |
+| email    | varchar(20) | NO   |     | NULL    |                |
 | admin    | tinyint(1)  | NO   |     | 0       |                |
 | runner   | tinyint(1)  | NO   |     | 0       |                |
 | reviewer | tinyint(1)  | NO   |     | 0       |                |
 +----------+-------------+------+-----+---------+----------------+
-5 rows in set (0.00 sec)
+6 rows in set (0.00 sec)
+
+mysql> select * from users;
++----+----------------+---------------------+-------+--------+----------+
+| id | name           | email               | admin | runner | reviewer |
++----+----------------+---------------------+-------+--------+----------+
+|  1 | Manik Juneja   | manik@vinsol.com    |     1 |      0 |        1 |
+|  2 | Akhil Bansal   | akhil@vinsol.com    |     1 |      0 |        1 |
+|  3 | Hemant Khemani | hemant@vinsol.com   |     0 |      0 |        1 |
+|  4 | Nishant Tuteja | nishant@vinsol.com  |     1 |      0 |        1 |
+|  5 | Abhishek Jain  | abhishek@vinsol.com |     0 |      1 |        1 |
+|  6 | Manish Kangia  | manish@vinsol.com   |     0 |      1 |        0 |
++----+----------------+---------------------+-------+--------+----------+
+6 rows in set (0.00 sec)
 
 mysql> create table tracks (
     -> track_id int auto_increment primary key,
@@ -97,7 +115,7 @@ mysql> alter table tasks_runners modify reviewer_id int not null default 1;
 Query OK, 0 rows affected (0.33 sec)
 Records: 0  Duplicates: 0  Warnings: 0
 
-
+-- after entry --
 mysql> select * from users;
 +----+----------------+-------+--------+----------+
 | id | name           | admin | runner | reviewer |
