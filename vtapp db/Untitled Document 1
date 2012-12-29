@@ -1,0 +1,150 @@
+users : track owner / track reviewer / admin / runner
+        track owner can add tasks and exercises which can be re ordered
+        track owner assigns the exercise to the possible reviewers 
+        reviewer can accept or reject the exercise
+        runner can be assigned tracks and mark each task as started and finished
+        runners submit solution for review
+admin : add track / add user / assign track owners
+tracks : name / 
+
+------
+users : id, name, admin(boolean), isrunner(bool), isreviewer(bool)
+tracks : track_id, name, track_owner_id
+tasks : task_id, track_id, name, description
+tasks_runners : user_id, task_id, started/finished, reviewer, rejected/accepted
+
+
+mysql> create table users ( 
+    -> id int auto_increment primary key,
+    -> name varchar(20) not null,
+    -> admin boolean not null default '0',
+    -> runner boolean not null default '0',
+    -> reviewer boolean not null default '0');
+Query OK, 0 rows affected (0.37 sec)
+
+mysql> desc users;
++----------+-------------+------+-----+---------+----------------+
+| Field    | Type        | Null | Key | Default | Extra          |
++----------+-------------+------+-----+---------+----------------+
+| id       | int(11)     | NO   | PRI | NULL    | auto_increment |
+| name     | varchar(20) | NO   |     | NULL    |                |
+| admin    | tinyint(1)  | NO   |     | 0       |                |
+| runner   | tinyint(1)  | NO   |     | 0       |                |
+| reviewer | tinyint(1)  | NO   |     | 0       |                |
++----------+-------------+------+-----+---------+----------------+
+5 rows in set (0.00 sec)
+
+mysql> create table tracks (
+    -> track_id int auto_increment primary key,
+    -> name varchar(20) not null,
+    -> track_owner_id int not null,
+    -> foreign key (track_owner_id) references users(id) );
+Query OK, 0 rows affected (0.14 sec)
+
+mysql> desc tracks;
++----------------+-------------+------+-----+---------+----------------+
+| Field          | Type        | Null | Key | Default | Extra          |
++----------------+-------------+------+-----+---------+----------------+
+| track_id       | int(11)     | NO   | PRI | NULL    | auto_increment |
+| name           | varchar(20) | NO   |     | NULL    |                |
+| track_owner_id | int(11)     | NO   | MUL | NULL    |                |
++----------------+-------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> create table tasks (
+    -> task_id int auto_increment primary key,
+    -> track_id int not null,
+    -> name varchar(20) not null,
+    -> description text,
+    -> foreign key ( track_id ) references tracks( track_id));
+Query OK, 0 rows affected (0.16 sec)
+
+mysql> desc tasks;
++-------------+-------------+------+-----+---------+----------------+
+| Field       | Type        | Null | Key | Default | Extra          |
++-------------+-------------+------+-----+---------+----------------+
+| task_id     | int(11)     | NO   | PRI | NULL    | auto_increment |
+| track_id    | int(11)     | NO   | MUL | NULL    |                |
+| name        | varchar(20) | NO   |     | NULL    |                |
+| description | text        | YES  |     | NULL    |                |
++-------------+-------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> create table tasks_runners (
+    -> user_id int not null,
+    -> task_id int not null,
+    -> `started/finished` boolean default null,
+    -> reviewer_id int,
+    -> `rejected/accepted` boolean,
+    -> foreign key ( user_id ) references users(id),
+    -> foreign key ( task_id ) references tasks(task_id),
+    -> foreign key ( reviewer_id) references users(id));
+Query OK, 0 rows affected (0.29 sec)
+
+mysql> desc tasks_runners;
++-------------------+------------+------+-----+---------+-------+
+| Field             | Type       | Null | Key | Default | Extra |
++-------------------+------------+------+-----+---------+-------+
+| user_id           | int(11)    | NO   | MUL | NULL    |       |
+| task_id           | int(11)    | NO   | MUL | NULL    |       |
+| started/finished  | tinyint(1) | YES  |     | NULL    |       |
+| reviewer_id       | int(11)    | YES  | MUL | NULL    |       |
+| rejected/accepted | tinyint(1) | YES  |     | NULL    |       |
++-------------------+------------+------+-----+---------+-------+
+5 rows in set (0.00 sec)
+
+mysql> alter table tasks_runners modify reviewer_id int not null default 1;
+Query OK, 0 rows affected (0.33 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+-- after entry --
+mysql> select * from users;
++----+----------------+-------+--------+----------+
+| id | name           | admin | runner | reviewer |
++----+----------------+-------+--------+----------+
+|  1 | Manik Juneja   |     1 |      0 |        1 |
+|  2 | Akhil Bansal   |     1 |      0 |        1 |
+|  3 | Hemant Khemani |     0 |      0 |        1 |
+|  4 | Nishant Tuteja |     1 |      0 |        1 |
+|  5 | Abhishek Jain  |     0 |      1 |        1 |
+|  6 | Manish Kangia  |     0 |      1 |        0 |
++----+----------------+-------+--------+----------+
+6 rows in set (0.00 sec)
+
+mysql> select * from tracks;
++----------+------------+----------------+
+| track_id | name       | track_owner_id |
++----------+------------+----------------+
+|        1 | HTML       |              1 |
+|        3 | JavaScript |              3 |
+|        4 | JQuery     |              3 |
+|        5 | MySql      |              2 |
++----------+------------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> select * from tasks;
++---------+----------+-------+---------------+
+| task_id | track_id | name  | description   |
++---------+----------+-------+---------------+
+|       1 |        1 | task1 | Do task1      |
+|       2 |        1 | task2 | Do task2 html |
+|       4 |        3 | task1 | Do task1 JS   |
+|       5 |        3 | task2 | Do task2 JS   |
++---------+----------+-------+---------------+
+4 rows in set (0.00 sec)
+
+mysql> insert into tasks_runners(user_id,task_id) values ( 6, 1 );
+Query OK, 1 row affected (0.06 sec)
+
+mysql> insert into tasks_runners(user_id,task_id) values ( 5, 5 );
+Query OK, 1 row affected (0.05 sec)
+
+mysql> select * from tasks_runners;
++---------+---------+------------------+-------------+-------------------+
+| user_id | task_id | started/finished | reviewer_id | rejected/accepted |
++---------+---------+------------------+-------------+-------------------+
+|       6 |       1 |             NULL |           1 |              NULL |
+|       5 |       5 |             NULL |           1 |              NULL |
++---------+---------+------------------+-------------+-------------------+
+2 rows in set (0.00 sec)
+
