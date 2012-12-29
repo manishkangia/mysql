@@ -1,0 +1,52 @@
+ mysql -u root -p dealdey < 'mysql/dealdey/dump.txt'
+ 
+1)List of member who have ever bought something on Dealdey, their signup date
+
+mysql> create table temp (select distinct ( user_id) from transactions);
+mysql> select firstname,lastname from users,temp where id = user_id;
+
+-----
+mysql> select id,firstname,lastname,created_at from users,temp where id = user_id limit 5;
++----+-----------+----------+---------------------+
+| id | firstname | lastname | created_at          |
++----+-----------+----------+---------------------+
+|  1 | Rajat     | Bhalla   | 2011-03-07 13:33:52 |
+|  2 | Sim       | Shagaya  | 2011-03-07 13:38:44 |
+|  3 | tunde     | james    | 2011-03-07 13:47:38 |
+|  4 | Olumide   | Oni      | 2011-03-07 14:09:22 |
+|  5 | richa     | bhardwaj | 2011-03-07 14:12:22 |
++----+-----------+----------+---------------------+
+5 rows in set (0.00 sec)
+
+2) their first purchase category, First purchase price
+
+mysql> create table temp2(select user_id,deal_id,(quantity*unit_price) as amount from deals_users left join temp using(user_id) group by user_id);
+Query OK, 3795 rows affected (23.77 sec)
+Records: 3795  Duplicates: 0  Warnings: 0
+
+mysql> create table tempTable2(select user_id,category_id,amount from temp2 left join deals on (id = category_id));
+Query OK, 3795 rows affected (2.82 sec)
+Records: 3795  Duplicates: 0  Warnings: 0
+mysql> create table temp4 (select name,user_id,amount from tempTable2 left join categories on ( id = category_id));
+Query OK, 3795 rows affected (0.29 sec)
+Records: 3795  Duplicates: 0  Warnings: 0
+mysql>  select firstname,lastname,name,amount from users,temp4 where user_id = id limit 5;
++-----------+----------+--------+---------+
+| firstname | lastname | name   | amount  |
++-----------+----------+--------+---------+
+| Rajat     | Bhalla   | Retail |  900.00 |
+| Sim       | Shagaya  | Retail |   15.00 |
+| richa     | bhardwaj | Retail |   15.00 |
+| Temitope  | Akinremi | Retail | 1600.00 |
+| Olakunle  | Martins  | Retail | 7000.00 |
++-----------+----------+--------+---------+
+5 rows in set (0.00 sec)
+
+mysql> select count(referrer_id) from users where referrer_id is not null;
++--------------------+
+| count(referrer_id) |
++--------------------+
+|              11135 |
++--------------------+
+1 row in set (0.03 sec)
+
