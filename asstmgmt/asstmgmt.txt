@@ -1,0 +1,269 @@
+mysql> create database assetmgmt;
+Query OK, 1 row affected (0.26 sec)
+
+mysql> create table employees ( id int, name varchar(20), primary key ( id) );
+Query OK, 0 rows affected (0.24 sec)
+mysql> alter table employees modify name varchar(20) not null;
+Query OK, 0 rows affected (0.38 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> alter table employees modify id int auto_increment;
+Query OK, 0 rows affected (0.39 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> desc employees;
++-------+-------------+------+-----+---------+----------------+
+| Field | Type        | Null | Key | Default | Extra          |
++-------+-------------+------+-----+---------+----------------+
+| id    | int(11)     | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(20) | NO   |     | NULL    |                |
++-------+-------------+------+-----+---------+----------------+
+2 rows in set (0.00 sec)
+
+mysql> create table assets( assetId int auto_increment, purchased datetime not null, model varchar(10), warranty date not null, allotted boolean not null default '0',`allot/central` boolean not null , primary key ( assetId ) );
+Query OK, 0 rows affected (0.20 sec)
+
+mysql> desc assets;
++---------------+-------------+------+-----+---------+----------------+
+| Field         | Type        | Null | Key | Default | Extra          |
++---------------+-------------+------+-----+---------+----------------+
+| assetId       | int(11)     | NO   | PRI | NULL    | auto_increment |
+| purchased     | datetime    | NO   |     | NULL    |                |
+| model         | varchar(10) | YES  |     | NULL    |                |
+| warranty      | date        | NO   |     | NULL    |                |
+| allotted      | tinyint(1)  | NO   |     | 0       |                |
+| allot/central | tinyint(1)  | NO   |     | NULL    |                |
++---------------+-------------+------+-----+---------+----------------+
+6 rows in set (0.00 sec)
+
+mysql> alter table assets add name varchar(20) not null after assetId;
+Query OK, 0 rows affected (0.33 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> desc assets;
++---------------+-------------+------+-----+---------+----------------+
+| Field         | Type        | Null | Key | Default | Extra          |
++---------------+-------------+------+-----+---------+----------------+
+| assetId       | int(11)     | NO   | PRI | NULL    | auto_increment |
+| name          | varchar(20) | NO   |     | NULL    |                |
+| purchased     | datetime    | NO   |     | NULL    |                |
+| model         | varchar(10) | YES  |     | NULL    |                |
+| warranty      | date        | NO   |     | NULL    |                |
+| allotted      | tinyint(1)  | NO   |     | 0       |                |
+| allot/central | tinyint(1)  | NO   |     | NULL    |                |
++---------------+-------------+------+-----+---------+----------------+
+7 rows in set (0.00 sec)
+
+mysql> create table asset_emplo ( asset_id int not null, emplo_id int not null, allot_on datetime not null, return_on datetime, key ( asset_id,emplo_id) ) ;
+Query OK, 0 rows affected (0.18 sec)
+
+mysql> desc asset_emplo;
++-----------+----------+------+-----+---------+-------+
+| Field     | Type     | Null | Key | Default | Extra |
++-----------+----------+------+-----+---------+-------+
+| asset_id  | int(11)  | NO   | MUL | NULL    |       |
+| emplo_id  | int(11)  | NO   |     | NULL    |       |
+| allot_on  | datetime | NO   |     | NULL    |       |
+| return_on | datetime | YES  |     | NULL    |       |
++-----------+----------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> show keys from asset_emplo;
++-------------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| Table       | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment |
++-------------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+| asset_emplo |          1 | asset_id |            1 | asset_id    | A         |           0 |     NULL | NULL   |      | BTREE      |         |               |
+| asset_emplo |          1 | asset_id |            2 | emplo_id    | A         |           0 |     NULL | NULL   |      | BTREE      |         |               |
++-------------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+
+2 rows in set (0.00 sec)
+
+mysql> desc centralassets;
++----------+-------------+------+-----+---------+-------+
+| Field    | Type        | Null | Key | Default | Extra |
++----------+-------------+------+-----+---------+-------+
+| asset_id | int(11)     | NO   | PRI | 0       |       |
+| location | varchar(15) | YES  |     | NULL    |       |
++----------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+
+
+-- all tables after data entry --
+-- considering default one year warranty for assets--
+mysql> select * from assets;
++---------+-------------+---------------------+-------+------------+----------+---------------+
+| assetId | name        | purchased           | model | warranty   | allotted | allot/central |
++---------+-------------+---------------------+-------+------------+----------+---------------+
+|       2 | Laptop A    | 2011-01-01 00:00:00 | A     | 0001-00-00 |        1 |             0 |
+|       3 | Laptop B    | 2011-01-01 00:00:00 | B     | 0001-00-00 |        0 |             0 |
+|       4 | Laptop N1   | 2012-12-28 11:41:23 | N1    | 0001-00-00 |        0 |             0 |
+|       5 | Laptop N2   | 2012-12-28 11:41:30 | N2    | 0001-00-00 |        0 |             0 |
+|       6 | iPhone A    | 2011-01-01 00:00:00 | A     | 0001-00-00 |        1 |             0 |
+|       7 | iPhone B    | 2011-01-01 00:00:00 | B     | 0001-00-00 |        1 |             0 |
+|       8 | Projector A | 2011-08-15 00:00:00 | A     | 0001-00-00 |        1 |             1 |
+|       9 | Printer A   | 2011-08-15 00:00:00 | A     | 0001-00-00 |        1 |             1 |
+|      10 | Printer B   | 2011-09-10 00:00:00 | B     | 0001-00-00 |        0 |             1 |
++---------+-------------+---------------------+-------+------------+----------+---------------+
+9 rows in set (0.00 sec)
+
+mysql> select * from employees;
++----+-------+
+| id | name  |
++----+-------+
+|  1 | Alice |
+|  2 | Bob   |
+|  3 | Chris |
+|  4 | Duke  |
+|  5 | Emily |
++----+-------+
+5 rows in set (0.00 sec)
+
+mysql> select * from assets;
++---------+-------------+---------------------+-------+------------+----------+---------------+
+| assetId | name        | purchased           | model | warranty   | allotted | allot/central |
++---------+-------------+---------------------+-------+------------+----------+---------------+
+|       2 | Laptop A    | 2011-01-01 00:00:00 | A     | 0001-00-00 |        1 |             0 |
+|       3 | Laptop B    | 2011-01-01 00:00:00 | B     | 0001-00-00 |        0 |             0 |
+|       4 | Laptop N1   | 2012-12-28 11:41:23 | N1    | 0001-00-00 |        0 |             0 |
+|       5 | Laptop N2   | 2012-12-28 11:41:30 | N2    | 0001-00-00 |        0 |             0 |
+|       6 | iPhone A    | 2011-01-01 00:00:00 | A     | 0001-00-00 |        1 |             0 |
+|       7 | iPhone B    | 2011-01-01 00:00:00 | B     | 0001-00-00 |        1 |             0 |
+|       8 | Projector A | 2011-08-15 00:00:00 | A     | 0001-00-00 |        1 |             1 |
+|       9 | Printer A   | 2011-08-15 00:00:00 | A     | 0001-00-00 |        1 |             1 |
+|      10 | Printer B   | 2011-09-10 00:00:00 | B     | 0001-00-00 |        0 |             1 |
++---------+-------------+---------------------+-------+------------+----------+---------------+
+9 rows in set (0.00 sec)
+
+mysql> select * from centralassets;
++----------+--------------+
+| asset_id | location     |
++----------+--------------+
+|        8 | meeting room |
+|        9 | meeting room |
++----------+--------------+
+2 rows in set (0.00 sec)
+
+mysql> select * from asset_emplo;
++----------+----------+---------------------+---------------------+
+| asset_id | emplo_id | allot_on            | return_on           |
++----------+----------+---------------------+---------------------+
+|        2 |        1 | 2011-01-01 00:00:00 | 2011-12-31 00:00:00 |
+|        2 |        2 | 2012-01-01 00:00:00 | 0000-00-00 00:00:00 |
+|        3 |        2 | 2011-01-01 00:00:00 | 2011-12-31 00:00:00 |
+|        6 |        1 | 2011-04-01 00:00:00 | 0000-00-00 00:00:00 |
+|        7 |        2 | 2011-01-01 00:00:00 | 0000-00-00 00:00:00 |
++----------+----------+---------------------+---------------------+
+5 rows in set (0.00 sec)
+
+1)Find the name of the employee who has been alloted the maximum number of assets till date
+
+mysql> create table temp select emplo_id,count(asset_id) as total_allotted from asset_emplo group by emplo_id;
+Query OK, 2 rows affected (0.32 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> select * from employees where id = (select emplo_id from temp where total_allotted = ( select max(total_allotted) from temp ));
++----+------+
+| id | name |
++----+------+
+|  2 | Bob  |
++----+------+
+1 row in set (0.00 sec)
+
+2)Identify the name of the employee who currently has the maximum number of assets as of today
+
+mysql> create table current_allot select emplo_id,count(asset_id) as current_count from (select * from asset_emplo where return_on <=> '0000:00:00') as temp group by emplo_id;
+Query OK, 2 rows affected (0.26 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+mysql> select * from current_allot;
++----------+---------------+
+| emplo_id | current_count |
++----------+---------------+
+|        1 |             1 |
+|        2 |             2 |
++----------+---------------+
+2 rows in set (0.00 sec)
+
+mysql> select * from employees where id = (select emplo_id from current_allot where current_count = ( select max(current_count) from current_allot ));
++----+------+
+| id | name |
++----+------+
+|  2 | Bob  |
++----+------+
+1 row in set (0.00 sec)
+
+3)Find name and period of all the employees who have used a Laptop - let’s say laptop A - since it was bought by the company
+
+mysql> create table period select emplo_id,asset_id,(to_days(return_on) - to_days(allot_on)) as timeperiod from (select * from asset_emplo where asset_id = 2 && return_on != '0000:00:00') as temp;
+Query OK, 1 row affected (0.26 sec)
+Records: 1  Duplicates: 0  Warnings: 0
+
+mysql> select * from period;
++----------+----------+------------+
+| emplo_id | asset_id | timeperiod |
++----------+----------+------------+
+|        1 |        2 |        364 |
++----------+----------+------------+
+1 row in set (0.00 sec)
+
+
+mysql> select asset_id,name,timeperiod from employees,period where emplo_id = id;
++----------+-------+------------+
+| asset_id | name  | timeperiod |
++----------+-------+------------+
+|        2 | Alice |        364 |
++----------+-------+------------+
+1 row in set (0.00 sec)
+
+4)Find the list of assets that are currently not assigned to anyone hence lying with the asset manage ( HR)
+
+mysql> select assetId, name from assets where allotted = '0';
++---------+-----------+
+| assetId | name      |
++---------+-----------+
+|       3 | Laptop B  |
+|       4 | Laptop N1 |
+|       5 | Laptop N2 |
+|      10 | Printer B |
++---------+-----------+
+4 rows in set (0.00 sec)
+
+5)An employee say Bob is leaving the company, write a query to get the list of assets he should be returning to the company.
+
+mysql> select * from assets where assetId in (select asset_id from asset_emplo where emplo_id = (select id from employees where name='Bob') && return_on <=> '0000:00:00');
++---------+----------+---------------------+-------+------------+----------+---------------+
+| assetId | name     | purchased           | model | warranty   | allotted | allot/central |
++---------+----------+---------------------+-------+------------+----------+---------------+
+|       2 | Laptop A | 2011-01-01 00:00:00 | A     | 0001-00-00 |        1 |             0 |
+|       7 | iPhone B | 2011-01-01 00:00:00 | B     | 0001-00-00 |        1 |             0 |
++---------+----------+---------------------+-------+------------+----------+---------------+
+2 rows in set (0.00 sec)
+
+-------
+6)Write a query to find assets which are out of warranty
+
+mysql> select * from (select assets.*,from_days( to_days(purchased) + to_days(warranty) ) as expiry from assets) as temp where expiry < now();
++---------+-------------+---------------------+-------+------------+----------+---------------+------------+
+| assetId | name        | purchased           | model | warranty   | allotted | allot/central | expiry     |
++---------+-------------+---------------------+-------+------------+----------+---------------+------------+
+|       2 | Laptop A    | 2011-01-01 00:00:00 | A     | 0000-12-31 |        1 |             0 | 2012-01-01 |
+|       3 | Laptop B    | 2011-01-01 00:00:00 | B     | 0000-12-31 |        0 |             0 | 2012-01-01 |
+|       6 | iPhone A    | 2011-01-01 00:00:00 | A     | 0000-12-31 |        1 |             0 | 2012-01-01 |
+|       7 | iPhone B    | 2011-01-01 00:00:00 | B     | 0000-12-31 |        1 |             0 | 2012-01-01 |
+|       8 | Projector A | 2011-08-15 00:00:00 | A     | 0000-12-31 |        1 |             1 | 2012-08-14 |
+|       9 | Printer A   | 2011-08-15 00:00:00 | A     | 0000-12-31 |        1 |             1 | 2012-08-14 |
+|      10 | Printer B   | 2011-09-10 00:00:00 | B     | 0000-12-31 |        0 |             1 | 2012-09-09 |
++---------+-------------+---------------------+-------+------------+----------+---------------+------------+
+7 rows in set (0.00 sec)
+
+7)Return a list of Employee Names who do not have any asset assigned to them.
+
+mysql> select * from employees where id not in ( select emplo_id from asset_emplo where return_on <=> '0000-00-00');
++----+-------+
+| id | name  |
++----+-------+
+|  3 | Chris |
+|  4 | Duke  |
+|  5 | Emily |
++----+-------+
+3 rows in set (0.00 sec)
