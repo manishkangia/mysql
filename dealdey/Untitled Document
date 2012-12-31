@@ -64,3 +64,7 @@ mysql> select count(referrer_id) from users where referrer_id is not null;
 +--------------------+
 1 row in set (0.03 sec)
 
+
+-------------------------------- second attempt .. all in one
+
+

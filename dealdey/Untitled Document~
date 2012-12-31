@@ -42,6 +42,20 @@ mysql>  select firstname,lastname,name,amount from users,temp4 where user_id = i
 +-----------+----------+--------+---------+
 5 rows in set (0.00 sec)
 
+3)Total number of purchases till date, Total money spent with the site till date,
+mysql> select user_id,count(deal_id),sum(unit_price * quantity) from deals_users group by user_id limit 5;
++---------+----------------+----------------------------+
+| user_id | count(deal_id) | sum(unit_price * quantity) |
++---------+----------------+----------------------------+
+|       1 |              3 |                    2500.00 |
+|       2 |             32 |                  175075.00 |
+|       5 |              2 |                      30.00 |
+|       8 |             59 |                  299490.00 |
+|       9 |             15 |                   90650.00 |
++---------+----------------+----------------------------+
+5 rows in set (0.05 sec)
+
+4)Total number of users who have signed up by their referral
 mysql> select count(referrer_id) from users where referrer_id is not null;
 +--------------------+
 | count(referrer_id) |
