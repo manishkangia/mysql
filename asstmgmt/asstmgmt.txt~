@@ -174,7 +174,7 @@ mysql> select * from employees where id = (select emplo_id from ( select emplo_i
 1 row in set (0.00 sec)
 
 
--------------------------------------------------or
+or
 
 mysql> create table temp select emplo_id,count(asset_id) as total_allotted from asset_emplo group by emplo_id;
 Query OK, 2 rows affected (0.32 sec)
@@ -189,22 +189,6 @@ mysql> select * from employees where id = (select emplo_id from temp where total
 1 row in set (0.00 sec)
 
 2)Identify the name of the employee who currently has the maximum number of assets as of today
-mysql> select @max_current_allot:= max(current_count) from ( select emplo_id,count(asset_id) as current_count from (select * from asset_emplo where return_on <=> '0000:00:00') as temp group by emplo_id) as temp2;
-+-----------------------------------------+
-| @max_current_allot:= max(current_count) |
-+-----------------------------------------+
-|                                       2 |
-+-----------------------------------------+
-1 row in set (0.00 sec)
-mysql> select * from employees where id = (select emplo_id from ( select emplo_id,count(asset_id) as current_count from (select * from asset_emplo where return_on <=> '0000:00:00') as temp group by emplo_id) as temp2 where current_count = @max_current_allot);
-+----+------+
-| id | name |
-+----+------+
-|  2 | Bob  |
-+----+------+
-1 row in set (0.00 sec)
-
----------------------------------------or
 
 mysql> create table current_allot select emplo_id,count(asset_id) as current_count from (select * from asset_emplo where return_on <=> '0000:00:00') as temp group by emplo_id;
 Query OK, 2 rows affected (0.26 sec)
