@@ -238,6 +238,25 @@ mysql> select count(email) as 'people responded',city from emailcamp group by ci
 5 rows in set (0.01 sec)
 
 3)
+mysql> select @max := max(count_responses) from ( select count(email) as count_responses from emailcamp group by city) as temp;
++------------------------------+
+| @max := max(count_responses) |
++------------------------------+
+|                           42 |
++------------------------------+
+1 row in set (0.00 sec)
+
+
+mysql> select * from ( select city,count(email) as responses from emailcamp group by city) as temp where responses = @max;
++----------+-----------+
+| city     | responses |
++----------+-----------+
+|  Chennai |        42 |
++----------+-----------+
+1 row in set (0.00 sec)
+
+or
+
 // create a temp table and use it to find the cities with maximum responses
 mysql> create table temp select city,count(email) as responses from emailcamp group by city;
 Query OK, 5 rows affected (0.24 sec)
