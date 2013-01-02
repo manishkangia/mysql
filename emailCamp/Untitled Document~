@@ -238,37 +238,16 @@ mysql> select count(email) as 'people responded',city from emailcamp group by ci
 5 rows in set (0.01 sec)
 
 3)
-mysql> select @max := max(count_responses) from ( select count(email) as count_responses from emailcamp group by city) as temp;
-+------------------------------+
-| @max := max(count_responses) |
-+------------------------------+
-|                           42 |
-+------------------------------+
-1 row in set (0.00 sec)
-
-
-mysql> select * from ( select city,count(email) as responses from emailcamp group by city) as temp where responses = @max;
+mysql> select * from ( select city,count(email) as responses from emailcamp group by city) as temp where responses = (select max(count_responses) from ( select count(email) as count_responses from emailcamp group by city) as temp2);
 +----------+-----------+
 | city     | responses |
 +----------+-----------+
 |  Chennai |        42 |
+|  Mumbai  |        42 |
 +----------+-----------+
-1 row in set (0.00 sec)
+2 rows in set (0.00 sec)
 
-or
-
-// create a temp table and use it to find the cities with maximum responses
-mysql> create table temp select city,count(email) as responses from emailcamp group by city;
-Query OK, 5 rows affected (0.24 sec)
-Records: 5  Duplicates: 0  Warnings: 0
-
-mysql> select * from temp where responses = (select max(responses) from temp );
-+----------+-----------+
-| city     | responses |
-+----------+-----------+
-|  Chennai |        42 |
-+----------+-----------+
-1 row in set (0.00 sec)
+( have added one new entry for Mumbai to ensure multiple answers)
 
 4)
 mysql> select distinct substring_index(email,'@',-1) as domains from emailcamp;
@@ -283,27 +262,13 @@ mysql> select distinct substring_index(email,'@',-1) as domains from emailcamp;
 4 rows in set (0.00 sec)
 
 5)
-mysql> create table domaincount select substring_index(email,'@',-1) as domains,count(email) as responses from emailcamp group by domains;
-Query OK, 4 rows affected (0.23 sec)
-Records: 4  Duplicates: 0  Warnings: 0
-
-mysql> select * from domaincount;
-+--------------+-----------+
-| domains      | responses |
-+--------------+-----------+
-| gmail.com    |        49 |
-| hotmail.com  |        49 |
-| me.com       |        51 |
-| yahoo.com    |        51 |
-+--------------+-----------+
-4 rows in set (0.00 sec)
-
-mysql> select * from domaincount where responses = ( select max(responses) from domaincount) ;
+mysql> select * from (select substring_index(email,'@',-1) as domains,count(email) as responses from emailcamp group by domains) as temp where responses = (select @max_domain_responses:= max(responses) from (select substring_index(email,'@',-1) as domains,count(email) as responses from emailcamp group by domains) as temp2);
 +------------+-----------+
 | domains    | responses |
 +------------+-----------+
 | me.com     |        51 |
 | yahoo.com  |        51 |
 +------------+-----------+
-2 rows in set (0.00 sec)
+2 rows in set (0.01 sec)
+
 
