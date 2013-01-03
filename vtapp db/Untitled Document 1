@@ -8,20 +8,16 @@ admin : add track / add user / assign track owners
 tracks : name / 
 
 ------
-users : id, name,email, admin(boolean), isrunner(bool), isreviewer(bool)
-tracks : track_id, name, track_owner_id
-tasks : task_id, track_id, name, description
-tasks_runners : user_id, task_id, started/finished, reviewer, rejected/accepted
-
-
-note: to reduce the table columns , we can think of removing the fields runners and reviewer and make a separate table for that or just remove the entries and try to find people who are runners currently using taks_runners table and similarly for reviewers.
+1) users : id, name,email, admin(boolean)
+2) tracks : track_id, name, track_owner_id
+3) tasks : task_id, track_id, name, description
+4) tracks_runner_reviewer : id,track_id, user_id, started_on, track_reviewer_id, finished_on 
+5) tasks_runners : user_id, task_id, started/finished, reviewer_id, rejected/accepted
 
 mysql> create table users ( 
     -> id int auto_increment primary key,
     -> name varchar(20) not null,
-    -> admin boolean not null default '0',
-    -> runner boolean not null default '0',
-    -> reviewer boolean not null default '0');
+    -> admin boolean not null default '0');
 Query OK, 0 rows affected (0.37 sec)
 
 mysql> alter table users add email varchar(20) not null after name;
@@ -29,17 +25,16 @@ Query OK, 6 rows affected (0.38 sec)
 Records: 6  Duplicates: 0  Warnings: 0
 
 mysql> desc users;
-+----------+-------------+------+-----+---------+----------------+
-| Field    | Type        | Null | Key | Default | Extra          |
-+----------+-------------+------+-----+---------+----------------+
-| id       | int(11)     | NO   | PRI | NULL    | auto_increment |
-| name     | varchar(20) | NO   |     | NULL    |                |
-| email    | varchar(20) | NO   |     | NULL    |                |
-| admin    | tinyint(1)  | NO   |     | 0       |                |
-| runner   | tinyint(1)  | NO   |     | 0       |                |
-| reviewer | tinyint(1)  | NO   |     | 0       |                |
-+----------+-------------+------+-----+---------+----------------+
-6 rows in set (0.00 sec)
++-------+-------------+------+-----+---------+----------------+
+| Field | Type        | Null | Key | Default | Extra          |
++-------+-------------+------+-----+---------+----------------+
+| id    | int(11)     | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(20) | NO   |     | NULL    |                |
+| email | varchar(20) | NO   |     | NULL    |                |
+| admin | tinyint(1)  | NO   |     | 0       |                |
++-------+-------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
 
 mysql> select * from users;
 +----+----------------+---------------------+-------+--------+----------+
@@ -89,6 +84,30 @@ mysql> desc tasks;
 | description | text        | YES  |     | NULL    |                |
 +-------------+-------------+------+-----+---------+----------------+
 4 rows in set (0.00 sec)
+
+mysql> create table tracks_runner_reviewer ( 
+    -> assign_id int primary key, 
+    -> track_id int not null,
+    -> user_id int not null,
+    -> started_on datetime not null,
+    -> track_reviewer_id int not null,
+    -> finished_on datetime,
+    -> foreign key(track_id) references tracks(track_id),
+    -> foreign key(user_id) references users( id ),
+    -> foreign key(track_reviewer_id) references users(id) );
+mysql> desc tracks_runner_reviewer;
++-------------------+----------+------+-----+---------+-------+
+| Field             | Type     | Null | Key | Default | Extra |
++-------------------+----------+------+-----+---------+-------+
+| assign_id         | int(11)  | NO   | PRI | NULL    |       |
+| track_id          | int(11)  | NO   | MUL | NULL    |       |
+| user_id           | int(11)  | NO   | MUL | NULL    |       |
+| started_on        | datetime | NO   |     | NULL    |       |
+| track_reviewer_id | int(11)  | NO   | MUL | NULL    |       |
+| finished_on       | datetime | YES  |     | NULL    |       |
++-------------------+----------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
 
 mysql> create table tasks_runners (
     -> user_id int not null,
