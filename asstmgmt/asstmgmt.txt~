@@ -20,39 +20,27 @@ mysql> desc employees;
 +-------+-------------+------+-----+---------+----------------+
 2 rows in set (0.00 sec)
 
-mysql> create table assets( assetId int auto_increment, purchased datetime not null, model varchar(10), warranty date not null, allotted boolean not null default '0',`allot/central` boolean not null , primary key ( assetId ) );
+mysql> create table assets( assetId int auto_increment, purchased datetime not null, model varchar(10), `warranty(in months)` int not null default 12 , allotted boolean not null default '0',`allot/central` boolean not null , primary key ( assetId ) );
 Query OK, 0 rows affected (0.20 sec)
-
-mysql> desc assets;
-+---------------+-------------+------+-----+---------+----------------+
-| Field         | Type        | Null | Key | Default | Extra          |
-+---------------+-------------+------+-----+---------+----------------+
-| assetId       | int(11)     | NO   | PRI | NULL    | auto_increment |
-| purchased     | datetime    | NO   |     | NULL    |                |
-| model         | varchar(10) | YES  |     | NULL    |                |
-| warranty      | date        | NO   |     | NULL    |                |
-| allotted      | tinyint(1)  | NO   |     | 0       |                |
-| allot/central | tinyint(1)  | NO   |     | NULL    |                |
-+---------------+-------------+------+-----+---------+----------------+
-6 rows in set (0.00 sec)
 
 mysql> alter table assets add name varchar(20) not null after assetId;
 Query OK, 0 rows affected (0.33 sec)
 Records: 0  Duplicates: 0  Warnings: 0
 
 mysql> desc assets;
-+---------------+-------------+------+-----+---------+----------------+
-| Field         | Type        | Null | Key | Default | Extra          |
-+---------------+-------------+------+-----+---------+----------------+
-| assetId       | int(11)     | NO   | PRI | NULL    | auto_increment |
-| name          | varchar(20) | NO   |     | NULL    |                |
-| purchased     | datetime    | NO   |     | NULL    |                |
-| model         | varchar(10) | YES  |     | NULL    |                |
-| warranty      | date        | NO   |     | NULL    |                |
-| allotted      | tinyint(1)  | NO   |     | 0       |                |
-| allot/central | tinyint(1)  | NO   |     | NULL    |                |
-+---------------+-------------+------+-----+---------+----------------+
++---------------------+-------------+------+-----+---------+----------------+
+| Field               | Type        | Null | Key | Default | Extra          |
++---------------------+-------------+------+-----+---------+----------------+
+| assetId             | int(11)     | NO   | PRI | NULL    | auto_increment |
+| name                | varchar(20) | NO   |     | NULL    |                |
+| purchased           | datetime    | NO   |     | NULL    |                |
+| model               | varchar(10) | YES  |     | NULL    |                |
+| warranty(in months) | int(11)     | NO   |     | 12      |                |
+| allotted            | tinyint(1)  | NO   |     | 0       |                |
+| allot/central       | tinyint(1)  | NO   |     | NULL    |                |
++---------------------+-------------+------+-----+---------+----------------+
 7 rows in set (0.00 sec)
+
 
 mysql> create table asset_emplo ( asset_id int not null, emplo_id int not null, allot_on datetime not null, return_on datetime, key ( asset_id,emplo_id) ) ;
 Query OK, 0 rows affected (0.18 sec)
@@ -91,19 +79,19 @@ mysql> desc centralassets;
 -- all tables after data entry --
 -- considering default one year warranty for assets--
 mysql> select * from assets;
-+---------+-------------+---------------------+-------+------------+----------+---------------+
-| assetId | name        | purchased           | model | warranty   | allotted | allot/central |
-+---------+-------------+---------------------+-------+------------+----------+---------------+
-|       2 | Laptop A    | 2011-01-01 00:00:00 | A     | 0001-00-00 |        1 |             0 |
-|       3 | Laptop B    | 2011-01-01 00:00:00 | B     | 0001-00-00 |        0 |             0 |
-|       4 | Laptop N1   | 2012-12-28 11:41:23 | N1    | 0001-00-00 |        0 |             0 |
-|       5 | Laptop N2   | 2012-12-28 11:41:30 | N2    | 0001-00-00 |        0 |             0 |
-|       6 | iPhone A    | 2011-01-01 00:00:00 | A     | 0001-00-00 |        1 |             0 |
-|       7 | iPhone B    | 2011-01-01 00:00:00 | B     | 0001-00-00 |        1 |             0 |
-|       8 | Projector A | 2011-08-15 00:00:00 | A     | 0001-00-00 |        1 |             1 |
-|       9 | Printer A   | 2011-08-15 00:00:00 | A     | 0001-00-00 |        1 |             1 |
-|      10 | Printer B   | 2011-09-10 00:00:00 | B     | 0001-00-00 |        0 |             1 |
-+---------+-------------+---------------------+-------+------------+----------+---------------+
++---------+-------------+---------------------+-------+---------------------+----------+---------------+
+| assetId | name        | purchased           | model | warranty(in months) | allotted | allot/central |
++---------+-------------+---------------------+-------+---------------------+----------+---------------+
+|       2 | Laptop A    | 2011-01-01 00:00:00 | A     |                  12 |        1 |             0 |
+|       3 | Laptop B    | 2011-01-01 00:00:00 | B     |                  12 |        0 |             0 |
+|       4 | Laptop N1   | 2012-12-28 11:41:23 | N1    |                  12 |        0 |             0 |
+|       5 | Laptop N2   | 2012-12-28 11:41:30 | N2    |                  12 |        0 |             0 |
+|       6 | iPhone A    | 2011-01-01 00:00:00 | A     |                  12 |        1 |             0 |
+|       7 | iPhone B    | 2011-01-01 00:00:00 | B     |                  12 |        1 |             0 |
+|       8 | Projector A | 2011-08-15 00:00:00 | A     |                  12 |        1 |             1 |
+|       9 | Printer A   | 2011-08-15 00:00:00 | A     |                  12 |        1 |             1 |
+|      10 | Printer B   | 2011-09-10 00:00:00 | B     |                  12 |        0 |             1 |
++---------+-------------+---------------------+-------+---------------------+----------+---------------+
 9 rows in set (0.00 sec)
 
 mysql> select * from employees;
@@ -117,22 +105,6 @@ mysql> select * from employees;
 |  5 | Emily |
 +----+-------+
 5 rows in set (0.00 sec)
-
-mysql> select * from assets;
-+---------+-------------+---------------------+-------+------------+----------+---------------+
-| assetId | name        | purchased           | model | warranty   | allotted | allot/central |
-+---------+-------------+---------------------+-------+------------+----------+---------------+
-|       2 | Laptop A    | 2011-01-01 00:00:00 | A     | 0001-00-00 |        1 |             0 |
-|       3 | Laptop B    | 2011-01-01 00:00:00 | B     | 0001-00-00 |        0 |             0 |
-|       4 | Laptop N1   | 2012-12-28 11:41:23 | N1    | 0001-00-00 |        0 |             0 |
-|       5 | Laptop N2   | 2012-12-28 11:41:30 | N2    | 0001-00-00 |        0 |             0 |
-|       6 | iPhone A    | 2011-01-01 00:00:00 | A     | 0001-00-00 |        1 |             0 |
-|       7 | iPhone B    | 2011-01-01 00:00:00 | B     | 0001-00-00 |        1 |             0 |
-|       8 | Projector A | 2011-08-15 00:00:00 | A     | 0001-00-00 |        1 |             1 |
-|       9 | Printer A   | 2011-08-15 00:00:00 | A     | 0001-00-00 |        1 |             1 |
-|      10 | Printer B   | 2011-09-10 00:00:00 | B     | 0001-00-00 |        0 |             1 |
-+---------+-------------+---------------------+-------+------------+----------+---------------+
-9 rows in set (0.00 sec)
 
 mysql> select * from centralassets;
 +----------+--------------+
@@ -157,23 +129,23 @@ mysql> select * from asset_emplo;
 
 1)Find the name of the employee who has been alloted the maximum number of assets till date
 
-mysql> select * from employees where id = (select emplo_id from ( select emplo_id,count(asset_id) as total_allotted from asset_emplo group by emplo_id) as temp where total_allotted = (select @max:= max(total_allotted) from (select emplo_id,count(asset_id) as total_allotted from asset_emplo group by emplo_id) as temp));
+mysql> select name from employees where id = (select emplo_id from asset_emplo group by emplo_id having count(asset_id) = (select max(total_allotted) from (select count(asset_id) as total_allotted from asset_emplo group by emplo_id) as temp1));
++------+
+| name |
++------+
+| Bob  |
++------+
+1 row in set (0.00 sec)
+
+2)Identify the name of the employee who currently has the maximum number of assets as of today
+
+mysql> select * from employees where id = (select emplo_id from asset_emplo where return_on <=> '00:00:00' group by emplo_id having count(asset_id) = (select max(current_count) from ( select count(asset_id) as current_count from asset_emplo where return_on <=> '0000:00:00' group by emplo_id) as temp));
 +----+------+
 | id | name |
 +----+------+
 |  2 | Bob  |
 +----+------+
 1 row in set (0.00 sec)
-
-
-2)Identify the name of the employee who currently has the maximum number of assets as of today
-mysql> select * from employees where id = (select emplo_id from ( select emplo_id,count(asset_id) as current_count from (select * from asset_emplo where return_on <=> '0000:00:00') as temp group by emplo_id) as temp2 where current_count = (select @max_current_allot:= max(current_count) from ( select emplo_id,count(asset_id) as current_count from (select * from asset_emplo where return_on <=> '0000:00:00') as temp group by emplo_id) as temp2));
-+----+------+
-| id | name |
-+----+------+
-|  2 | Bob  |
-+----+------+
-1 row in set (0.01 sec)
 
 3)Find name and period of all the employees who have used a Laptop - let’s say laptop A - since it was bought by the company
 
@@ -214,29 +186,29 @@ mysql> select assetId, name from assets where allotted = '0';
 5)An employee say Bob is leaving the company, write a query to get the list of assets he should be returning to the company.
 
 mysql> select * from assets where assetId in (select asset_id from asset_emplo where emplo_id = (select id from employees where name='Bob') && return_on <=> '0000:00:00');
-+---------+----------+---------------------+-------+------------+----------+---------------+
-| assetId | name     | purchased           | model | warranty   | allotted | allot/central |
-+---------+----------+---------------------+-------+------------+----------+---------------+
-|       2 | Laptop A | 2011-01-01 00:00:00 | A     | 0001-00-00 |        1 |             0 |
-|       7 | iPhone B | 2011-01-01 00:00:00 | B     | 0001-00-00 |        1 |             0 |
-+---------+----------+---------------------+-------+------------+----------+---------------+
++---------+----------+---------------------+-------+---------------------+----------+---------------+
+| assetId | name     | purchased           | model | warranty(in months) | allotted | allot/central |
++---------+----------+---------------------+-------+---------------------+----------+---------------+
+|       2 | Laptop A | 2011-01-01 00:00:00 | A     |                  12 |        1 |             0 |
+|       7 | iPhone B | 2011-01-01 00:00:00 | B     |                  12 |        1 |             0 |
++---------+----------+---------------------+-------+---------------------+----------+---------------+
 2 rows in set (0.00 sec)
 
 -------
 6)Write a query to find assets which are out of warranty
 
-mysql> select * from (select assets.*,from_days( to_days(purchased) + to_days(warranty) ) as expiry from assets) as temp where expiry < now();
-+---------+-------------+---------------------+-------+------------+----------+---------------+------------+
-| assetId | name        | purchased           | model | warranty   | allotted | allot/central | expiry     |
-+---------+-------------+---------------------+-------+------------+----------+---------------+------------+
-|       2 | Laptop A    | 2011-01-01 00:00:00 | A     | 0000-12-31 |        1 |             0 | 2012-01-01 |
-|       3 | Laptop B    | 2011-01-01 00:00:00 | B     | 0000-12-31 |        0 |             0 | 2012-01-01 |
-|       6 | iPhone A    | 2011-01-01 00:00:00 | A     | 0000-12-31 |        1 |             0 | 2012-01-01 |
-|       7 | iPhone B    | 2011-01-01 00:00:00 | B     | 0000-12-31 |        1 |             0 | 2012-01-01 |
-|       8 | Projector A | 2011-08-15 00:00:00 | A     | 0000-12-31 |        1 |             1 | 2012-08-14 |
-|       9 | Printer A   | 2011-08-15 00:00:00 | A     | 0000-12-31 |        1 |             1 | 2012-08-14 |
-|      10 | Printer B   | 2011-09-10 00:00:00 | B     | 0000-12-31 |        0 |             1 | 2012-09-09 |
-+---------+-------------+---------------------+-------+------------+----------+---------------+------------+
+mysql> select assets.*,(purchased + interval `warranty(in months)` month) as expiry from assets having expiry < now();
++---------+-------------+---------------------+-------+---------------------+----------+---------------+---------------------+
+| assetId | name        | purchased           | model | warranty(in months) | allotted | allot/central | expiry              |
++---------+-------------+---------------------+-------+---------------------+----------+---------------+---------------------+
+|       2 | Laptop A    | 2011-01-01 00:00:00 | A     |                  12 |        1 |             0 | 2012-01-01 00:00:00 |
+|       3 | Laptop B    | 2011-01-01 00:00:00 | B     |                  12 |        0 |             0 | 2012-01-01 00:00:00 |
+|       6 | iPhone A    | 2011-01-01 00:00:00 | A     |                  12 |        1 |             0 | 2012-01-01 00:00:00 |
+|       7 | iPhone B    | 2011-01-01 00:00:00 | B     |                  12 |        1 |             0 | 2012-01-01 00:00:00 |
+|       8 | Projector A | 2011-08-15 00:00:00 | A     |                  12 |        1 |             1 | 2012-08-15 00:00:00 |
+|       9 | Printer A   | 2011-08-15 00:00:00 | A     |                  12 |        1 |             1 | 2012-08-15 00:00:00 |
+|      10 | Printer B   | 2011-09-10 00:00:00 | B     |                  12 |        0 |             1 | 2012-09-10 00:00:00 |
++---------+-------------+---------------------+-------+---------------------+----------+---------------+---------------------+
 7 rows in set (0.00 sec)
 
 7)Return a list of Employee Names who do not have any asset assigned to them.

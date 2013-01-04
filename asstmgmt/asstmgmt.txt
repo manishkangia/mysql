@@ -129,45 +129,32 @@ mysql> select * from asset_emplo;
 
 1)Find the name of the employee who has been alloted the maximum number of assets till date
 
-mysql> select * from employees where id = (select emplo_id from ( select emplo_id,count(asset_id) as total_allotted from asset_emplo group by emplo_id) as temp where total_allotted = (select @max:= max(total_allotted) from (select emplo_id,count(asset_id) as total_allotted from asset_emplo group by emplo_id) as temp));
+mysql> select name from employees where id = (select emplo_id from asset_emplo group by emplo_id having count(asset_id) = (select max(total_allotted) from (select count(asset_id) as total_allotted from asset_emplo group by emplo_id) as temp1));
++------+
+| name |
++------+
+| Bob  |
++------+
+1 row in set (0.00 sec)
+
+2)Identify the name of the employee who currently has the maximum number of assets as of today
+
+mysql> select * from employees where id = (select emplo_id from asset_emplo where return_on <=> '00:00:00' group by emplo_id having count(asset_id) = (select max(current_count) from ( select count(asset_id) as current_count from asset_emplo where return_on <=> '0000:00:00' group by emplo_id) as temp));
 +----+------+
 | id | name |
 +----+------+
 |  2 | Bob  |
 +----+------+
 1 row in set (0.00 sec)
-
-
-2)Identify the name of the employee who currently has the maximum number of assets as of today
-mysql> select * from employees where id = (select emplo_id from ( select emplo_id,count(asset_id) as current_count from (select * from asset_emplo where return_on <=> '0000:00:00') as temp group by emplo_id) as temp2 where current_count = (select @max_current_allot:= max(current_count) from ( select emplo_id,count(asset_id) as current_count from (select * from asset_emplo where return_on <=> '0000:00:00') as temp group by emplo_id) as temp2));
-+----+------+
-| id | name |
-+----+------+
-|  2 | Bob  |
-+----+------+
-1 row in set (0.01 sec)
 
 3)Find name and period of all the employees who have used a Laptop - let’s say laptop A - since it was bought by the company
 
-mysql> create table period select emplo_id,asset_id,(to_days(return_on) - to_days(allot_on)) as timeperiod from (select * from asset_emplo where asset_id = 2 && return_on != '0000:00:00') as temp;
-Query OK, 1 row affected (0.26 sec)
-Records: 1  Duplicates: 0  Warnings: 0
-
-mysql> select * from period;
-+----------+----------+------------+
-| emplo_id | asset_id | timeperiod |
-+----------+----------+------------+
-|        1 |        2 |        364 |
-+----------+----------+------------+
-1 row in set (0.00 sec)
-
-
-mysql> select asset_id,name,timeperiod from employees,period where emplo_id = id;
-+----------+-------+------------+
-| asset_id | name  | timeperiod |
-+----------+-------+------------+
-|        2 | Alice |        364 |
-+----------+-------+------------+
+mysql> select name,asset_id,timeperiod from (select name,id from employees) as temp1 inner join (select emplo_id,asset_id,(to_days(return_on) - to_days(allot_on)) as timeperiod from (select * from asset_emplo where asset_id = 2 && return_on != '0000:00:00') as temp) as temp2 on (temp1.id = temp2.emplo_id);
++-------+----------+------------+
+| name  | asset_id | timeperiod |
++-------+----------+------------+
+| Alice |        2 |        364 |
++-------+----------+------------+
 1 row in set (0.00 sec)
 
 4)Find the list of assets that are currently not assigned to anyone hence lying with the asset manage ( HR)
