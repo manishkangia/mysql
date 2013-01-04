@@ -1,40 +1,14 @@
 mysql -u root -p dealdey < 'mysql/dealdey/dump.txt'
- 
-mysql> select referred,user_id,firstname,lastname,sign_up,name as 'first purchase category',amount as 'first purchase total price',purchases,total_spent from (select * from (select id,firstname,lastname,created_at as sign_up from users where id in ( select distinct(user_id) from deals_users )) as temp1 inner join ( select user_id,deal_id,quantity,unit_price,(quantity*unit_price) as amount,count(deal_id) as purchases,sum(quantity*unit_price) as total_spent from deals_users group by user_id) as temp2 on ( temp1.id = temp2.user_id)) as temp3 inner join ( select name,deals.id as deal_id from categories,deals where categories.id = deals.category_id) as temp4 on (temp3.deal_id = temp4.deal_id) left join (select referrer_id,count(id) as referred from users where referrer_id in ( select distinct(user_id) from deals_users) group by referrer_id) as temp5 on (temp3.id = temp5.referrer_id) order by user_id;
 
-3795 rows in set (1 min 45.27 sec)
-
-mysql> select user_id,firstname,lastname,sign_up,name as 'first category',amount as 'first purchase',purchases,total_spent,referred from (select * from (select id,firstname,lastname,created_at as sign_up from users where id in ( select distinct(user_id) from deals_users )) as temp1 inner join ( select user_id,deal_id,quantity,unit_price,(quantity*unit_price) as amount,count(deal_id) as purchases,sum(quantity*unit_price) as total_spent from deals_users group by user_id) as temp2 on ( temp1.id = temp2.user_id)) as temp3 inner join ( select name,deals.id as deal_id from categories,deals where categories.id = deals.category_id) as temp4 on (temp3.deal_id = temp4.deal_id) left join (select referrer_id,count(id) as referred from users group by referrer_id) as temp5 on (temp3.id = temp5.referrer_id) order by user_id limit 5;
-+---------+-----------+----------+---------------------+----------------+----------------+-----------+-------------+----------+
-| user_id | firstname | lastname | sign_up             | first category | first purchase | purchases | total_spent | referred |
-+---------+-----------+----------+---------------------+----------------+----------------+-----------+-------------+----------+
-|       1 | Rajat     | Bhalla   | 2011-03-07 13:33:52 | Food & Drink   |         900.00 |         3 |     2500.00 |     NULL |
-|       2 | Sim       | Shagaya  | 2011-03-07 13:38:44 | Retail         |          15.00 |        32 |   175075.00 |     NULL |
-|       5 | richa     | bhardwaj | 2011-03-07 14:12:22 | Retail         |          15.00 |         2 |       30.00 |     NULL |
-|       8 | Temitope  | Akinremi | 2011-03-07 15:02:54 | Food & Drink   |        1600.00 |        59 |   299490.00 |        6 |
-|       9 | Olakunle  | Martins  | 2011-03-07 15:16:12 | Events         |        7000.00 |        15 |    90650.00 |     NULL |
-+---------+-----------+----------+---------------------+----------------+----------------+-----------+-------------+----------+
-5 rows in set (1 min 18.61 sec)
-
-mysql> select user_id,firstname,lastname,sign_up,name as 'first category',amount as 'first purchase',purchases,total_spent,referred from (select * from (select id,firstname,lastname,created_at as sign_up from users where id in ( select distinct(user_id) from deals_users )) as temp1 inner join ( select user_id,deal_id,quantity,unit_price,(quantity*unit_price) as amount,count(deal_id) as purchases,sum(quantity*unit_price) as total_spent from deals_users group by user_id) as temp2 on ( temp1.id = temp2.user_id)) as temp3 inner join ( select name,deals.id as deal_id from categories,deals where categories.id = deals.category_id) as temp4 on (temp3.deal_id = temp4.deal_id) left join (select referrer_id,count(id) as referred from users where referrer_id in ( select distinct(user_id) from deals_users) group by referrer_id) as temp5 on (temp3.id = temp5.referrer_id) order by user_id limit 5;
-+---------+-----------+----------+---------------------+----------------+----------------+-----------+-------------+----------+
-| user_id | firstname | lastname | sign_up             | first category | first purchase | purchases | total_spent | referred |
-+---------+-----------+----------+---------------------+----------------+----------------+-----------+-------------+----------+
-|       1 | Rajat     | Bhalla   | 2011-03-07 13:33:52 | Food & Drink   |         900.00 |         3 |     2500.00 |     NULL |
-|       2 | Sim       | Shagaya  | 2011-03-07 13:38:44 | Retail         |          15.00 |        32 |   175075.00 |     NULL |
-|       5 | richa     | bhardwaj | 2011-03-07 14:12:22 | Retail         |          15.00 |         2 |       30.00 |     NULL |
-|       8 | Temitope  | Akinremi | 2011-03-07 15:02:54 | Food & Drink   |        1600.00 |        59 |   299490.00 |        6 |
-|       9 | Olakunle  | Martins  | 2011-03-07 15:16:12 | Events         |        7000.00 |        15 |    90650.00 |     NULL |
-+---------+-----------+----------+---------------------+----------------+----------------+-----------+-------------+----------+
-5 rows in set (1 min 46.55 sec)
-
-
-mysql> select count( distinct user_id) from deals_users;
-+--------------------------+
-| count( distinct user_id) |
-+--------------------------+
-|                     3795 |
-+--------------------------+
-1 row in set (0.07 sec)
-
+mysql> select users.id,firstname,lastname,users.created_at as sign_up,name,amount,purchases,total_spent,referred from users inner join ( select user_id,deal_id,( quantity*unit_price) as amount,count(deal_id) as purchases,sum(quantity*unit_price) as total_spent from deals_users group by user_id ) as temp on users.id = temp.user_id inner join ( select name,deals.id as deal_id from deals inner join categories on deals.category_id = categories.id ) as temp3 on temp3.deal_id = temp.deal_id left join (select referrer_id,count(id) as referred from users group by referrer_id) as temp5 on temp5.referrer_id = temp.user_id order by temp.user_id limit 5;
++----+-----------+----------+---------------------+--------------+---------+-----------+-------------+----------+
+| id | firstname | lastname | sign_up             | name         | amount  | purchases | total_spent | referred |
++----+-----------+----------+---------------------+--------------+---------+-----------+-------------+----------+
+|  1 | Rajat     | Bhalla   | 2011-03-07 13:33:52 | Food & Drink |  900.00 |         3 |     2500.00 |     NULL |
+|  2 | Sim       | Shagaya  | 2011-03-07 13:38:44 | Retail       |   15.00 |        32 |   175075.00 |     NULL |
+|  5 | richa     | bhardwaj | 2011-03-07 14:12:22 | Retail       |   15.00 |         2 |       30.00 |     NULL |
+|  8 | Temitope  | Akinremi | 2011-03-07 15:02:54 | Food & Drink | 1600.00 |        59 |   299490.00 |        6 |
+|  9 | Olakunle  | Martins  | 2011-03-07 15:16:12 | Events       | 7000.00 |        15 |    90650.00 |     NULL |
++----+-----------+----------+---------------------+--------------+---------+-----------+-------------+----------+
+5 rows in set (2.13 sec)
 
