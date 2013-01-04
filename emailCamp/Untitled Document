@@ -262,13 +262,14 @@ mysql> select distinct substring_index(email,'@',-1) as domains from emailcamp;
 4 rows in set (0.00 sec)
 
 5)
-mysql> select * from (select substring_index(email,'@',-1) as domains,count(email) as responses from emailcamp group by domains) as temp where responses = (select @max_domain_responses:= max(responses) from (select substring_index(email,'@',-1) as domains,count(email) as responses from emailcamp group by domains) as temp2);
+mysql> select substring_index(email,'@',-1) as domains,count(email) as responses from emailcamp group by domains having responses = ( select max(responses) from (select substring_index(email,'@',-1) as domains,count(email) as responses from emailcamp group by domains) as temp );
 +------------+-----------+
 | domains    | responses |
 +------------+-----------+
 | me.com     |        51 |
 | yahoo.com  |        51 |
 +------------+-----------+
-2 rows in set (0.01 sec)
+2 rows in set (0.00 sec)
+
 
 
